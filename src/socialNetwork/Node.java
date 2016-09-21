@@ -41,4 +41,14 @@ public class Node extends AbstractNode implements Serializable{
 		
 	}
 
+	@Override
+	public DirectionalLink getDirectionalLinkTo(String id) {
+		for (DirectionalLink directionalLink : adiacencyList) {
+			if (directionalLink.getTarget().getId().equals(id)) {
+				return directionalLink;
+			}
+		}
+		return null;
+	}
+
 }

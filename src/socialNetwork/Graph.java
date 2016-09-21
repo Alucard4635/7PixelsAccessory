@@ -45,13 +45,20 @@ public abstract class Graph implements Serializable {
 	}
 
 	public abstract HashFocus createAFocus(String id);
+	
+	public boolean containsNode(String id){
+		return nodes.get(id)!=null;
+	}
+	public boolean containsNode(AbstractNode node){
+		return nodes.contains(node);
+	}
 
 	private HashFocus takeFocus(String id) {
-		return getFocus().get(id);
+		return getFocuses().get(id);
 	}
 
 	public HashFocus removeFocus(String id) {
-		return getFocus().remove(id);
+		return getFocuses().remove(id);
 	}
 
 	public AbstractNode removeNode(String id) {
@@ -104,7 +111,7 @@ public abstract class Graph implements Serializable {
 		this.nodes = nodes;
 	}
 
-	public ConcurrentHashMap<String, HashFocus> getFocus() {
+	public ConcurrentHashMap<String, HashFocus> getFocuses() {
 		return focus;
 	}
 

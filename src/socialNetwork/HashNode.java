@@ -45,4 +45,9 @@ public class HashNode extends AbstractNode implements Serializable{
 		
 	}
 
+	@Override
+	public DirectionalLink getDirectionalLinkTo(String id) {
+		return adiacencyMap.get(id);
+	}
+
 }

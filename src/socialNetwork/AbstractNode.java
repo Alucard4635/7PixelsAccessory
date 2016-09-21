@@ -49,7 +49,12 @@ public abstract class AbstractNode implements Serializable{
 		directionalLink(n,weight);
 		n.directionalLink(this,weight);
 	}
+	public DirectionalLink getDirectionalLinkTo(AbstractNode target){
+		return getDirectionalLinkTo(target.getId());
+	}
 	
+	public abstract DirectionalLink getDirectionalLinkTo(String id);
+
 	public abstract Collection<DirectionalLink> getAdiacencyList();
 
 	public boolean isAdiacentNode(AbstractNode target) {
