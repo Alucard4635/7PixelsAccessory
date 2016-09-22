@@ -60,7 +60,7 @@ public class WordRanker{
 		return list.toArray(new NodeWord[list.size()]);
 	}
 	
-	public ArrayList<NodeWord> getAllWordsByRank(StringTokenizer tok) {
+	public ArrayList<NodeWord> getAllWordsByRank(StringTokenizer tok) {// aggiungere un enumerativo (o simile) per collegare i tipi e le loro relazioni
 		ArrayList<NodeWord> list=new ArrayList<NodeWord>();
 		NodeWord old = null;
 		while (tok.hasMoreTokens()) {
