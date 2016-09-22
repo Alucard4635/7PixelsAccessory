@@ -21,7 +21,7 @@ public class WordRanker{
 	private int wordCounter=0;
 	private WordGraph graph=new WordGraph();
 	
-	public void learn(String text,String delimiter,float importanceMultiplier, float deltaWeight){
+	public NodeWord[] learn(String text,String delimiter,float importanceMultiplier, float boundWeight){
 		// prendo le parole e ne assimila la possibile tokenizzazione
 		StringTokenizer tok= new StringTokenizer(text,delimiter);
 		AbstractNode oldNode = null;
@@ -38,7 +38,7 @@ public class WordRanker{
 					createdNodeWord.increaseOccurence(1/importanceMultiplier);
 
 					if (oldNode!=null) {
-						createdNodeWord.increaseBound(oldNode, deltaWeight);
+						createdNodeWord.increaseBound(oldNode, boundWeight);
 					}
 					
 					oldNode=createdNode;
@@ -60,7 +60,8 @@ public class WordRanker{
 		return list.toArray(new NodeWord[list.size()]);
 	}
 	
-	public ArrayList<NodeWord> getAllWordsByRank(StringTokenizer tok) {// aggiungere un enumerativo (o simile) per collegare i tipi e le loro relazioni
+	public ArrayList<NodeWord> getAllWordsByRank(StringTokenizer tok) {
+		// per la valutazione delle parole di locazioni si verificherà a monte
 		ArrayList<NodeWord> list=new ArrayList<NodeWord>();
 		NodeWord old = null;
 		while (tok.hasMoreTokens()) {
@@ -71,10 +72,10 @@ public class WordRanker{
 				if (node instanceof NodeWord) {
 					NodeWord word = (NodeWord) node;
 					double rank = rankWord(word);
-					if (old!=null) {
+					/*if (old!=null) {
 						double bound = word.getBound(old);
-						//se è alto si costuisce una nuova parola
-					}
+						//TODO se è alto si costuisce una nuova parola
+					}*/
 					int index = 0;
 					
 					boolean eq=false;
