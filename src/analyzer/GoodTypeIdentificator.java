@@ -4,6 +4,6 @@ import dataStructures.Good;
 import dataStructures.TypeOfGoods;
 
 public interface GoodTypeIdentificator {
-	public TypeOfGoods reconizeType(Good good);
+	public TypeOfGoods reconizeType(Good good, String deimiter);
 
 }

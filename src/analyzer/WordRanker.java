@@ -6,9 +6,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
-import dataStructures.NodeWord;
+import dataStructures.NodeWordOfGoods;
 import dataStructures.TypeOfGoods;
-import dataStructures.WordGraph;
+import dataStructures.WordOfGoodsGraph;
 import socialNetwork.AbstractNode;
 import socialNetwork.DirectionalLink;
 import socialNetwork.Graph;
@@ -19,9 +19,9 @@ import socialNetwork.Graph;
  */
 public class WordRanker{
 	private int wordCounter=0;
-	private WordGraph graph=new WordGraph();
+	private WordOfGoodsGraph graph=new WordOfGoodsGraph();
 	
-	public NodeWord[] learn(String text,String delimiter,float importanceMultiplier, float boundWeight){
+	public void learn(String text,String delimiter,float importanceMultiplier, float boundWeight, float[] deltaFeatures){
 		// prendo le parole e ne assimila la possibile tokenizzazione
 		StringTokenizer tok= new StringTokenizer(text,delimiter);
 		AbstractNode oldNode = null;
@@ -33,13 +33,14 @@ public class WordRanker{
 				}
 				AbstractNode createdNode = graph.getNode(nextToken);
 				
-				if (createdNode instanceof NodeWord) {
-					NodeWord createdNodeWord=(NodeWord) createdNode;
+				if (createdNode instanceof NodeWordOfGoods) {
+					NodeWordOfGoods createdNodeWord=(NodeWordOfGoods) createdNode;
 					createdNodeWord.increaseOccurence(1/importanceMultiplier);
 
 					if (oldNode!=null) {
 						createdNodeWord.increaseBound(oldNode, boundWeight);
 					}
+					createdNodeWord.addFeatures(deltaFeatures);
 					
 					oldNode=createdNode;
 				}
@@ -48,29 +49,29 @@ public class WordRanker{
 	}
 
 	//returns an array of words in order of increasing importance
-	public NodeWord[] getKeywords(String text,String deimiter, int first){
+	public NodeWordOfGoods[] getKeywords(String text,String deimiter, int first){
 		StringTokenizer tok= new StringTokenizer(text, deimiter);
-		ArrayList<NodeWord> list = getAllWordsByRank(tok);
-		return list.toArray(new NodeWord[first]);
+		ArrayList<NodeWordOfGoods> list = getAllKeywords(tok);
+		return list.toArray(new NodeWordOfGoods[first]);
 	}
 	
-	public NodeWord[] getAllKeywords(String text,String deimiter){
+	public NodeWordOfGoods[] getAllKeywords(String text,String deimiter){
 		StringTokenizer tok= new StringTokenizer(text, deimiter);
-		ArrayList<NodeWord> list = getAllWordsByRank(tok);
-		return list.toArray(new NodeWord[list.size()]);
+		ArrayList<NodeWordOfGoods> list = getAllKeywords(tok);
+		return list.toArray(new NodeWordOfGoods[list.size()]);
 	}
 	
-	public ArrayList<NodeWord> getAllWordsByRank(StringTokenizer tok) {
+	public ArrayList<NodeWordOfGoods> getAllKeywords(StringTokenizer tok) {
 		// per la valutazione delle parole di locazioni si verificherà a monte
-		ArrayList<NodeWord> list=new ArrayList<NodeWord>();
-		NodeWord old = null;
+		ArrayList<NodeWordOfGoods> list=new ArrayList<NodeWordOfGoods>();
+		NodeWordOfGoods old = null;
 		while (tok.hasMoreTokens()) {
 			String nextToken = tok.nextToken();
 			if (!nextToken.equals("")) {
 				AbstractNode node = graph.getNode(nextToken);
 				
-				if (node instanceof NodeWord) {
-					NodeWord word = (NodeWord) node;
+				if (node instanceof NodeWordOfGoods) {
+					NodeWordOfGoods word = (NodeWordOfGoods) node;
 					double rank = rankWord(word);
 					/*if (old!=null) {
 						double bound = word.getBound(old);
@@ -78,20 +79,15 @@ public class WordRanker{
 					}*/
 					int index = 0;
 					
-					boolean eq=false;
-					for (NodeWord nodeWord : list) {//order by decreasing order
-						if (rank<=rankWord(nodeWord)) {
-							if (nodeWord.equals(word)) {
-								eq=true;
+					
+					if (!list.contains(word)) {
+						for (NodeWordOfGoods nodeWord : list) {//order by decreasing order
+							if (rank<=rankWord(nodeWord)) {
 								break;
 							}
-							break;
+							index++;
 						}
-						index++;
-					}
-					if (!eq) {
 						list.add(index,word);
-						eq=false;
 					}
 					old=word;
 				}
@@ -102,16 +98,16 @@ public class WordRanker{
 	}
 	
 
-	public double rankWord(NodeWord word) {
+	public double rankWord(NodeWordOfGoods word) {
 		try {
 			double probability = (double)word.getOccurence()/wordCounter;
-			return -Math.log10(probability)/Math.log10(2);
+			return (-Math.log10(probability));
 		} catch (ArithmeticException e) {
 			return 1;
 		}
 	}
 
-	public WordGraph getGraph() {
+	public WordOfGoodsGraph getGraph() {
 		return graph;
 	}
 

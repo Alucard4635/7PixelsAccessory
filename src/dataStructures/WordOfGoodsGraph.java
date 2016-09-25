@@ -4,7 +4,7 @@ import socialNetwork.AbstractNode;
 import socialNetwork.Graph;
 import socialNetwork.HashFocus;
 
-public class WordGraph extends Graph {
+public class WordOfGoodsGraph extends Graph {
 
 	/**
 	 * 
@@ -13,7 +13,7 @@ public class WordGraph extends Graph {
 
 	@Override
 	public AbstractNode createANode(String id) {
-		return new NodeWord(id, new float[TypeOfGoods.values().length]);
+		return new NodeWordOfGoods(id, new float[TypeOfGoods.values().length]);
 	}
 
 	@Override

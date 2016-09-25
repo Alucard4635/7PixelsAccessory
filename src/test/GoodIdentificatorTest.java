@@ -13,6 +13,6 @@ public class GoodIdentificatorTest {
 	public void identify() {
 		GoodTypeIdentificator identificator = null;
 		Good good = null;//=new Good(merch, titl, desc, price);
-		identificator.reconizeType(good);
+		identificator.reconizeType(good, " ");
 	}
 }

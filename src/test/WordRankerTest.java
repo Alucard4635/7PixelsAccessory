@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import analyzer.WordRanker;
 import dataStructures.Good;
-import dataStructures.NodeWord;
+import dataStructures.NodeWordOfGoods;
 
 public class WordRankerTest {
 	private static WordRanker ranker;
@@ -22,12 +22,12 @@ public class WordRankerTest {
 				+ " il contenuto western e ispirato ai film   spaghetti western   degli anni  60."
 				+ " set in stile saloon con",
 				13.93f);
-		ranker.learn(g.getTitle()," ", 2,2);
-		ranker.learn(g.getDescription()," ",1, 1);
+		ranker.learn(g.getTitle()," ", -5,2, null);
+		ranker.learn(g.getDescription()," ",1, 1, null);
 
-		NodeWord[] allKeywords = ranker.getAllKeywords(g.getDescription(), " ");
+		NodeWordOfGoods[] allKeywords = ranker.getAllKeywords(g.getDescription(), " ");
 		for (int i = 0; i < allKeywords.length; i++) {
-			System.out.println(allKeywords[i]); 
+			System.out.println(allKeywords[i]+" "+ranker.rankWord(allKeywords[i])); 
 		}
 		//getKeywords "the sims", "the sims movie stuff", "sims"
 		//Product, contain more accessories "arredi  mobili e abbigliamento ispirati ai film"

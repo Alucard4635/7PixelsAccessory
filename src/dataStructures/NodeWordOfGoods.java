@@ -4,7 +4,7 @@ import socialNetwork.AbstractNode;
 import socialNetwork.DirectionalLink;
 import socialNetwork.HashNode;
 
-public class NodeWord extends HashNode {
+public class NodeWordOfGoods extends HashNode {
 	/**
 	 * 
 	 */
@@ -30,7 +30,7 @@ public class NodeWord extends HashNode {
 
 	private float[] features;
 	
-	public NodeWord(String idendt,float[] features) {
+	public NodeWordOfGoods(String idendt,float[] features) {
 		super(idendt);
 		this.features = features;
 	}
@@ -53,8 +53,22 @@ public class NodeWord extends HashNode {
 		this.totalBound = totalBound;
 	}
 
-	public double getBound(NodeWord old) {
+	public double getBound(NodeWordOfGoods old) {
 		return getDirectionalLinkTo(old).getWeight();
+	}
+
+	public void addFeatures(float[] deltaFeatures) {
+		double squareSum = 0;
+		for (int i = 0; i < deltaFeatures.length; i++) {
+			features[i]+=deltaFeatures[i];
+			squareSum+=features[i]*features[i];
+		}
+		squareSum=Math.sqrt(squareSum);
+		for (int i = 0; i < deltaFeatures.length; i++) {
+			features[i]/=squareSum;
+		}
+		
+		
 	}
 
 }

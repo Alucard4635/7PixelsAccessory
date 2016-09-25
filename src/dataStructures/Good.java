@@ -44,9 +44,9 @@ public class Good {
 	public void setPrice(float price) {
 		this.price = price;
 	}
-	public TypeOfGoods getType() {
+	public TypeOfGoods getType(String delimiter) {
 		if (type==null) {
-			type=reconizer.reconizeType(this);
+			return reconizer.reconizeType(this, delimiter);
 		}
 		return type;
 	}
