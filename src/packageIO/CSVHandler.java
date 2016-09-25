@@ -63,26 +63,28 @@ public class CSVHandler implements Iterator<String[]>,Iterable<String[]>,Closeab
 	
 	/**
 	 * @param fileCSV to read
+	 * @param delimiter 
 	 * @return list of row's values
 	 * @throws IOException on reading
 	 */
-	public static List<String[]> readCSV(File fileCSV) throws IOException{
+	public static List<String[]> readCSV(File fileCSV, String delimiter) throws IOException{
 		BufferedReader reader = new BufferedReader(new FileReader(fileCSV));
-		return readAndCloseCSV(reader);
+		return readAndCloseCSV(reader, delimiter);
 	}
 
 	/**
 	 * @param reader to read
+	 * @param delimiter 
 	 * @return list of row's values
 	 * @throws IOException on reading
 	 */
-	public static List<String[]> readAndCloseCSV(BufferedReader reader) throws IOException {
+	public static List<String[]> readAndCloseCSV(BufferedReader reader, String delimiter) throws IOException {
 		LinkedList<String[]> listOfValues = new LinkedList<String[]>();
 		Stream<String> lines = reader.lines();
 		Iterator<String> iterator = lines.iterator();
 		while (iterator.hasNext()) {
 			String string = (String) iterator.next();
-			listOfValues.add( string.split(","));
+			listOfValues.add( string.split(delimiter));
 		}
 		reader.close();
 		return listOfValues;
@@ -90,17 +92,18 @@ public class CSVHandler implements Iterator<String[]>,Iterable<String[]>,Closeab
 	
 	/**
 	 * @param fileCSV to read
+	 * @param delimiter 
 	 * @return maxDouble value
 	 * @throws IOException on reading
 	 */
-	public static double getMaxDoubleValue(File fileCSV) throws IOException {
+	public static double getMaxDoubleValue(File fileCSV, String delimiter) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(fileCSV));
 		Stream<String> lines = reader.lines();
 		Iterator<String> iterator = lines.iterator();
 		double maxValueFound=0;
 		while (iterator.hasNext()) {
 			String string = (String) iterator.next();
-			String[] split = string.split(",");
+			String[] split = string.split(delimiter);
 			for (int i = 0; i < split.length; i++) {
 				double current = Double.parseDouble(split[i]);
 				if (current>maxValueFound) {
@@ -114,17 +117,18 @@ public class CSVHandler implements Iterator<String[]>,Iterable<String[]>,Closeab
 
 	/**
 	 * @param fileCSV to read
+	 * @param delimiter 
 	 * @return a map of all integer values and strings
 	 * @throws IOException on reading
 	 */
-	public static HashMap<String, Integer> getAllPossibleIntegerValues(File fileCSV) throws IOException {
+	public static HashMap<String, Integer> getAllPossibleIntegerValues(File fileCSV, String delimiter) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(fileCSV));
 		Stream<String> lines = reader.lines();
 		Iterator<String> iterator = lines.iterator();
 		HashMap<String, Integer> integers=new HashMap<String, Integer>();
 		while (iterator.hasNext()) {
 			String string = (String) iterator.next();
-			String[] split = string.split(",");
+			String[] split = string.split(delimiter);
 			for (int i = 0; i < split.length; i++) {
 				Integer integer = integers.get(split[i]);
 				if (integer==null) {
@@ -141,10 +145,11 @@ public class CSVHandler implements Iterator<String[]>,Iterable<String[]>,Closeab
 	 * @param valuesLessToSkip values to skip
 	 * @param values to write
 	 * @param startWithANewline start with a new line if true
+	 * @param delimiter 
 	 * @throws IOException on writing
 	 */
 	public static void writeAValueSet(BufferedWriter writer, HashSet<String> valuesLessToSkip, 
-			String[] values,boolean startWithANewline) throws IOException {
+			String[] values,boolean startWithANewline, char[] delimiter) throws IOException {
 		boolean writedAValue = false;
 		if (startWithANewline) {
 			writer.write("\n");
@@ -152,7 +157,7 @@ public class CSVHandler implements Iterator<String[]>,Iterable<String[]>,Closeab
 		for (int i = 0; i < values.length;i++ ) {
 			if (valuesLessToSkip==null||!valuesLessToSkip.contains(values[i])) {
 				if (writedAValue) {
-					writer.write(",");
+					writer.write(delimiter);
 					writedAValue=false;
 				}
 				writedAValue = true;
@@ -165,16 +170,17 @@ public class CSVHandler implements Iterator<String[]>,Iterable<String[]>,Closeab
 	/**return lines with one or more indicated values
 	 * @param mainFiles files to read
 	 * @param valuesToFind values to report the lines
+	 * @param regexdelimiter 
 	 * @return a list of index of lines, it starts from 0
 	 * @throws IOException on reading
 	 */
-	public static ArrayList<Integer> getLinesWithThatValues( File[] mainFiles,HashSet<String>[] valuesToFind) throws IOException {
+	public static ArrayList<Integer> getLinesWithThatValues( File[] mainFiles,HashSet<String>[] valuesToFind, String regexdelimiter) throws IOException {
 		ArrayList<Integer> linesToSkip=new ArrayList<Integer>();
 		ArrayList<Integer> linesToSkipPartial;
 		for (int i = 0; i < mainFiles.length; i++) {
 			File fileCSV = mainFiles[i];
 			HashSet<String> values = valuesToFind[i];
-			linesToSkipPartial = getLinesWithThatValues(fileCSV, values);
+			linesToSkipPartial = getLinesWithThatValues(fileCSV, values,regexdelimiter);
 			linesToSkip.addAll(linesToSkipPartial);
 		}
 		return linesToSkip;
@@ -183,12 +189,13 @@ public class CSVHandler implements Iterator<String[]>,Iterable<String[]>,Closeab
 	/**return lines with one or more indicated values
 	 * @param fileCSV files to read
 	 * @param values values to report the lines
+	 * @param regexdelimiter 
 	 * @return a list of index of lines, it starts from 0
 	 * @throws IOException on reading
 	 */
-	public static ArrayList<Integer> getLinesWithThatValues(File fileCSV, HashSet<String> values) throws IOException {
+	public static ArrayList<Integer> getLinesWithThatValues(File fileCSV, HashSet<String> values, String regexdelimiter) throws IOException {
 		ArrayList<Integer> linesToSkipPartial=new ArrayList<Integer>();
-		List<String[]> content=CSVHandler.readCSV(fileCSV);
+		List<String[]> content=CSVHandler.readCSV(fileCSV, regexdelimiter);
 		Integer currentLine=0;
 		for (String[] word : content) {
 			for (int j = 0; j < word.length; j++) {
@@ -204,13 +211,14 @@ public class CSVHandler implements Iterator<String[]>,Iterable<String[]>,Closeab
 
 	/**create a map with values mapped with integers
 	 * @param bufferedReader buffer to map
+	 * @param delimiter 
 	 * @return a map with values mapped with integers
 	 * @throws IOException on reading
 	 */
-	public static HashMap<String, String> remapValues(BufferedReader bufferedReader) throws IOException {
+	public static HashMap<String, String> remapValues(BufferedReader bufferedReader, String delimiter) throws IOException {
 		HashMap<String, String> values=new HashMap<String, String>();
 		//List<String[]> readedCSV = readAndCloseCSV(bufferedReader);
-		CSVHandler csvHandler = new CSVHandler(bufferedReader, ",");
+		CSVHandler csvHandler = new CSVHandler(bufferedReader, delimiter);
 		Integer counter=0;
 		for (String[] strings : csvHandler) {
 			for (int i = 0; i < strings.length; i++) {
@@ -228,9 +236,10 @@ public class CSVHandler implements Iterator<String[]>,Iterable<String[]>,Closeab
 	/**write a CSV files mapping with the given map , the new file is named {@code currentFile.getName()+"Remapped.csv"}
 	 * @param oldToNewValueMap map for map values
 	 * @param files files to remapped
+	 * @param delimiter 
 	 * @throws IOException on writing
 	 */
-	public static void createARemappedCSV(HashMap<String, String> oldToNewValueMap, File... files) throws IOException {
+	public static void createARemappedCSV(HashMap<String, String> oldToNewValueMap, String delimiter, File... files) throws IOException {
 		for (int i = 0; i < files.length; i++) {
 			File currentFile = files[i];
 			if (currentFile!=null) {
@@ -239,8 +248,8 @@ public class CSVHandler implements Iterator<String[]>,Iterable<String[]>,Closeab
 				Stream<String> reader=bufferedReader.lines();
 				boolean startWithANewline = false;
 				for (Iterator<String> lineIterator = reader.iterator(); lineIterator.hasNext();) {
-					String[] values = ( lineIterator.next()).split(",");
-					writeARemappedValueSet(writer, oldToNewValueMap, values, ",", startWithANewline);
+					String[] values = ( lineIterator.next()).split(delimiter);
+					writeARemappedValueSet(writer, oldToNewValueMap, values, delimiter, startWithANewline);
 	
 					startWithANewline=true;
 				}

@@ -9,7 +9,7 @@ import dataStructures.TypeOfGoods;
  * a supervised classifier that recognizes the best type of goods
  */
 public class GoodsClassificator implements GoodTypeIdentificator {
-	private WordRanker ranker;
+	private WordRanker ranker=new WordRanker();
 	private float titleFeatureWeight;
 
 	@Override
@@ -20,6 +20,9 @@ public class GoodsClassificator implements GoodTypeIdentificator {
 		
 		float[] sumTitleFeatures = sumFeatures(titleKeywords);
 		float[] sumDescriptionFeatures = sumFeatures(descriptionKeywords);
+		if (sumDescriptionFeatures==null) {
+			sumDescriptionFeatures = sumTitleFeatures;
+		}
 		
 		sumArray(sumDescriptionFeatures, sumTitleFeatures, titleFeatureWeight);
 		
@@ -34,13 +37,15 @@ public class GoodsClassificator implements GoodTypeIdentificator {
 		return TypeOfGoods.values()[indexOfMax];
 	}
 
-	public float[] sumFeatures(NodeWordOfGoods[] titleKeywords) {
+	public float[] sumFeatures(NodeWordOfGoods[] keywords) {
 		NodeWordOfGoods current;
 		float[] features;
 		float[] totalFeatures=null;
-
-		for (int i = 0; i < titleKeywords.length; i++) {
-			current = titleKeywords[i];
+		if (keywords.length<1) {
+			return null;
+		}
+		for (int i = 0; i < keywords.length; i++) {
+			current = keywords[i];
 			features = current.getFeatures();
 			if (totalFeatures==null) {
 				totalFeatures=features.clone();

@@ -8,7 +8,7 @@ public class Good {
 	String title;
 	String description="";
 	float price;
-	TypeOfGoods type;
+	private TypeOfGoods type;
 	
 	public Good(String merch, String titl,String desc,float price) {
 		if (merch!=null)
@@ -49,6 +49,10 @@ public class Good {
 			return reconizer.reconizeType(this, delimiter);
 		}
 		return type;
+	}
+
+	public void setType(TypeOfGoods type) {
+		this.type = type;
 	}
 	
 	
