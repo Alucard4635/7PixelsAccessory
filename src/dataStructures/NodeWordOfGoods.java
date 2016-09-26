@@ -63,10 +63,10 @@ public class NodeWordOfGoods extends HashNode {
 			features[i]+=deltaFeatures[i];
 			squareSum+=features[i]*features[i];
 		}
-		squareSum=Math.sqrt(squareSum);
+		/*squareSum=Math.sqrt(squareSum);
 		for (int i = 0; i < deltaFeatures.length; i++) {
 			features[i]/=squareSum;
-		}
+		}*/
 		
 		
 	}
