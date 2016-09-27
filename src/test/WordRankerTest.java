@@ -22,14 +22,14 @@ public class WordRankerTest {
 				+ " il contenuto western e ispirato ai film   spaghetti western   degli anni  60."
 				+ " set in stile saloon con",
 				13.93f);
-		ranker.learn(g.getTitle()," ", -5,2, null);
-		ranker.learn(g.getDescription()," ",1, 1, null);
+		
+		float[] features={1f,10f};
+		ranker.learn(g.getTitle()," ", 1,1, features);
+		ranker.learn(g.getDescription()," ",1, 1, features);
 
 		NodeWordOfGoods[] allKeywords = ranker.getAllKeywords(g.getDescription(), " ");
 		for (int i = 0; i < allKeywords.length; i++) {
-			System.out.println(allKeywords[i]+" "+ranker.rankWord(allKeywords[i])); 
+			System.out.println(allKeywords[i]+" "+allKeywords[i].getOccurence() +" "+ranker.rankWord(allKeywords[i])); 
 		}
-		//getKeywords "the sims", "the sims movie stuff", "sims"
-		//Product, contain more accessories "arredi  mobili e abbigliamento ispirati ai film"
 	}
 }

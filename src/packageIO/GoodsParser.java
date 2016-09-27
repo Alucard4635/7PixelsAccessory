@@ -21,9 +21,9 @@ public class GoodsParser {
 		return parseGood(line);
 	}
 	
-	public Collection<Good> readAndClose() throws IOException{
+	public LinkedList<Good> readAndClose() throws IOException{
 		Good toAdd;
-		Collection<Good> result=new LinkedList<Good>();
+		LinkedList<Good> result=new LinkedList<Good>();
 		while (goodsReader.hasNext()) {
 			toAdd = parseGood(goodsReader.next());
 			result.add(toAdd);

@@ -34,6 +34,9 @@ public class GoodsClassificator implements GoodTypeIdentificator {
 				indexOfMax=i;
 			}
 		}
+		if (sumDescriptionFeatures[0]<0||sumDescriptionFeatures[1]<0) {
+		//	System.out.println(sumDescriptionFeatures[0]+" "+sumDescriptionFeatures[1]);
+		}
 		return TypeOfGoods.values()[indexOfMax];
 	}
 
@@ -48,10 +51,9 @@ public class GoodsClassificator implements GoodTypeIdentificator {
 			current = keywords[i];
 			features = current.getFeatures();
 			if (totalFeatures==null) {
-				totalFeatures=features.clone();
-			}else {
-				sumArray( totalFeatures, features, ranker.rankWord(current));
+				totalFeatures=new float[features.length];
 			}
+			sumArray( totalFeatures, features, ranker.rankWord(current));
 		}
 		return totalFeatures;
 	}
@@ -72,7 +74,6 @@ public class GoodsClassificator implements GoodTypeIdentificator {
 			float[] deltaFeatures=new float[TypeOfGoods.values().length];
 			TypeOfGoods type = current.getType(wordDelimiter);
 			deltaFeatures[type.ordinal()]+=1;
-			
 			ranker.learn(current.getTitle(), wordDelimiter, titleIM, boundWeight, deltaFeatures);
 			ranker.learn(current.getDescription(), wordDelimiter,
 					descriptionIM, boundWeight, deltaFeatures);

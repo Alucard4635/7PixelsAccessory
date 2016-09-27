@@ -26,16 +26,20 @@ public class WordRanker{
 		StringTokenizer tok= new StringTokenizer(text,delimiter);
 		AbstractNode oldNode = null;
 		while (tok.hasMoreTokens()) {
+			boolean isNew=false;
 			String nextToken = tok.nextToken();
 			if (!nextToken.equals("")) {
 				if (!graph.containsNode(nextToken)) {
+					isNew = true;
 					wordCounter++;
 				}
 				AbstractNode createdNode = graph.getNode(nextToken);
 				
 				if (createdNode instanceof NodeWordOfGoods) {
 					NodeWordOfGoods createdNodeWord=(NodeWordOfGoods) createdNode;
-					createdNodeWord.increaseOccurence(1/importanceMultiplier);
+					if (!isNew) {
+						createdNodeWord.increaseOccurence(1/importanceMultiplier);
+					}
 
 					if (oldNode!=null) {
 						createdNodeWord.increaseBound(oldNode, boundWeight);
@@ -99,12 +103,12 @@ public class WordRanker{
 	
 
 	public double rankWord(NodeWordOfGoods word) {
-		try {
-			double probability = (double)word.getOccurence()/wordCounter;
-			return (-Math.log10(probability));
-		} catch (ArithmeticException e) {
+		if (wordCounter==0) {
 			return 1;
 		}
+		double probability = (double)word.getOccurence()/wordCounter;
+			
+		return (-Math.log10(probability));
 	}
 
 	public WordOfGoodsGraph getGraph() {

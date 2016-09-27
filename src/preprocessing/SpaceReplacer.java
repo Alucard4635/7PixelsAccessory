@@ -6,8 +6,9 @@ public class SpaceReplacer implements GoodsProcesser {
 
 	@Override
 	public void processes(Good toProcess) {
-		toProcess.setTitle(toProcess.getTitle().replaceAll("(\\s)*", " "));
-		toProcess.setDescription(toProcess.getDescription().replaceAll("(\\s)*", " "));
+		toProcess.setTitle(toProcess.getTitle().replaceAll("(\\W)+", " "));
+		toProcess.setDescription(toProcess.getDescription().replaceAll("(\\W)+", " "));
+
 	}
 
 }

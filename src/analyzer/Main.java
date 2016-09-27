@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -17,6 +18,9 @@ import preprocessing.TitleRemover;
 
 
 public class Main {
+	private static final double PERCENTUALE_DI_ADDESTRAMENTO = 0.5;
+	private static final String goodDeimiter = " ";
+
 	public static void main(String[] args) {
 		File[] files = new File[2];//accessories and product
 		JFileChooser f = new JFileChooser();
@@ -45,36 +49,63 @@ public class Main {
 			System.exit(0);
 		}
 		Collection<Good> goods = null;
+		Collection<Good> learningSet = new LinkedList<Good>();
+
 		try {
-			goods = goods0.readAndClose();
-			goods.addAll(goods1.readAndClose());
+			LinkedList<Good> class0 = goods0.readAndClose();
+			LinkedList<Good> class1 = goods1.readAndClose();
+			int j = (int) (class0.size()*PERCENTUALE_DI_ADDESTRAMENTO);
+			for (int i = 0; i < j; i++) {
+				learningSet.add(class0.removeLast());
+				if (!class1.isEmpty()) {
+					learningSet.add(class1.removeLast());
+				}
+			}
+			goods = class1;
+			goods.addAll(class0);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
 		GoodsClassificator goodsClassificator = new GoodsClassificator();
-		Good[] arrayGood=new Good[goods.size()];
-		goods.toArray(arrayGood);
-		for (int i = 0; i < arrayGood.length; i++) {
+		
+		Good[] arrayGoodLearning=new Good[learningSet.size()];
+		learningSet.toArray(arrayGoodLearning);
+		preprocess(preprocessers, arrayGoodLearning);
+		
+		Good[] arrayGoodTest=new Good[goods.size()];
+		goods.toArray(arrayGoodTest);
+		preprocess(preprocessers, arrayGoodTest);
+		
+//		int descEmpty = 0;
+//		for (int i = 0; i < arrayGoodLearning.length; i++) {
+//			if (arrayGoodLearning[i].getDescription().length()<1) {
+//				descEmpty++;
+//			}
+//		}
+//		System.out.println(descEmpty);
+		for (int addest = 0; addest < 1; addest++) {
+			goodsClassificator.learnType(arrayGoodLearning, goodDeimiter, 1, 1, 1);
+		
+			double hit = 0;
+			for (int i = 0; i < arrayGoodTest.length; i++) {
+				Good current = arrayGoodTest[i];
+				TypeOfGoods reconizeType = goodsClassificator.reconizeType(current, goodDeimiter);
+				if (reconizeType.equals(current.getType(goodDeimiter))) {
+					hit++;
+				}
+			}
+			System.out.println(hit/arrayGoodTest.length);
+		}
+
+	}
+
+	public static void preprocess(GoodsProcesser[] preprocessers, Good[] arrayGoodTest) {
+		for (int i = 0; i < arrayGoodTest.length; i++) {
 			for (int j = 0; j < preprocessers.length; j++) {
-				preprocessers[j].processes(arrayGood[i]);
+				preprocessers[j].processes(arrayGoodTest[i]);
 			}
 			
 		}
-		
-		String goodDeimiter = " ";
-		goodsClassificator.learnType(arrayGood, goodDeimiter, 1, 1, 1);
-
-		
-		double hit = 0;
-		for (int i = 0; i < arrayGood.length; i++) {
-			Good current = arrayGood[i];
-			TypeOfGoods reconizeType = goodsClassificator.reconizeType(current, goodDeimiter);
-			if (reconizeType.equals(current.getType(goodDeimiter))) {
-				hit++;
-			}
-		}
-		System.out.println(hit/arrayGood.length);
-
 	}
 }
