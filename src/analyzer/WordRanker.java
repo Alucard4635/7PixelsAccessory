@@ -108,7 +108,7 @@ public class WordRanker{
 		}
 		double probability = (double)word.getOccurence()/wordCounter;
 			
-		return (-Math.log10(probability));
+		return probability*(-Math.log10(probability));
 	}
 
 	public WordOfGoodsGraph getGraph() {
