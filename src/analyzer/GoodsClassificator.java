@@ -49,6 +49,9 @@ public class GoodsClassificator implements GoodTypeIdentificator {
 		}
 		for (int i = 0; i < keywords.length; i++) {
 			current = keywords[i];
+			if (current==null) {
+				break;
+			}
 			features = current.getFeatures();
 			if (totalFeatures==null) {
 				totalFeatures=new float[features.length];
