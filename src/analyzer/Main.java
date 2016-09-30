@@ -84,6 +84,9 @@ public class Main {
 //			}
 //		}
 //		System.out.println(descEmpty);
+		double prodHit = 0;
+		double accHit = 0;
+		int accNum=0;
 		for (int addest = 0; addest < 1; addest++) {
 			goodsClassificator.learnType(arrayGoodLearning, goodDeimiter, 1, 1, 1);
 		
@@ -91,11 +94,26 @@ public class Main {
 			for (int i = 0; i < arrayGoodTest.length; i++) {
 				Good current = arrayGoodTest[i];
 				TypeOfGoods reconizeType = goodsClassificator.reconizeType(current, goodDeimiter);
-				if (reconizeType.equals(current.getType(goodDeimiter))) {
+				TypeOfGoods correctType = current.getType(goodDeimiter);
+				if (reconizeType.equals(correctType)) {
 					hit++;
+					if (correctType.equals(TypeOfGoods.ACCESSORY)) {
+						accHit++;
+					}
+					if (correctType.equals(TypeOfGoods.PRODUCT)) {
+						prodHit++;
+					}
 				}
+				if (correctType.equals(TypeOfGoods.ACCESSORY)) {
+					accNum++;
+				}
+				
 			}
-			System.out.println(hit/arrayGoodTest.length);
+			System.out.println("Global "+hit/arrayGoodTest.length);
+			System.out.println("Acc "+accHit/accNum);
+			System.out.println("Prod "+prodHit/(arrayGoodTest.length-accNum));
+
+
 		}
 
 	}
