@@ -10,7 +10,7 @@ import dataStructures.TypeOfGoods;
  */
 public class GoodsClassificator implements GoodTypeIdentificator {
 	private WordRanker ranker=new WordRanker();
-	private float titleFeatureWeight;
+	private float titleFeatureWeight=0.5f;
 
 	@Override
 	public TypeOfGoods reconizeType(Good good, String deimiter) {
@@ -33,9 +33,6 @@ public class GoodsClassificator implements GoodTypeIdentificator {
 			if (current>maxValue) {
 				indexOfMax=i;
 			}
-		}
-		if (sumDescriptionFeatures[0]<0||sumDescriptionFeatures[1]<0) {
-		//	System.out.println(sumDescriptionFeatures[0]+" "+sumDescriptionFeatures[1]);
 		}
 		return TypeOfGoods.values()[indexOfMax];
 	}
