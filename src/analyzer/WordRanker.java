@@ -38,7 +38,9 @@ public class WordRanker{
 				if (createdNode instanceof NodeWordOfGoods) {
 					NodeWordOfGoods createdNodeWord=(NodeWordOfGoods) createdNode;
 					if (!isNew) {
-						createdNodeWord.increaseOccurence(1/importanceMultiplier);
+						float increase = 1/importanceMultiplier;
+						createdNodeWord.increaseOccurence(increase);
+						wordCounter+=increase;
 					}
 
 					if (oldNode!=null) {
@@ -107,13 +109,18 @@ public class WordRanker{
 			return 1;
 		}
 		double probability = (double)word.getOccurence()/wordCounter;
-			
-		return probability*(-Math.log10(probability));
+		double other=1-probability;
+		return probability*(-Math.log10(probability))+other*(-Math.log10(other));// migliorato con Math.sqrt(probability)
 	}
 
 	public WordOfGoodsGraph getGraph() {
 		return graph;
 	}
+
+	public int getWordCounter() {
+		return wordCounter;
+	}
+
 
 	
 }
