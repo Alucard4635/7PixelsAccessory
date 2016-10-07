@@ -70,5 +70,14 @@ public class NodeWordOfGoods extends HashNode {
 		
 		
 	}
+	
+	@Override
+	public String toString() {
+		String stringSuper = super.toString()+" "+occurence+"[";
+		for (int i = 0; i < features.length; i++) {
+			stringSuper+=features[i]+",";
+		}
+		return stringSuper.substring(0, stringSuper.length()-1)+"]";
+	}
 
 }

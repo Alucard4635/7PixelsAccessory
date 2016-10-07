@@ -55,6 +55,10 @@ public class Good {
 		this.type = type;
 	}
 	
-	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "Title: "+title+"\n"+"Description: "+description;
+	}
 	
 }
