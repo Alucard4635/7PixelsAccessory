@@ -32,7 +32,6 @@ public class GoodsParser {
 	}
 
 	public Good parseGood(String[] line) throws IOException {
-		
 		String price = line[3];
 		Good good = new Good(line[0], line[1], line[2], Float.parseFloat(price));
 		if (line.length>4) {
@@ -40,7 +39,6 @@ public class GoodsParser {
 				good.setType(TypeOfGoods.ACCESSORY);
 			}else {
 				good.setType(TypeOfGoods.PRODUCT);
-
 			}
 		}
 		return good;
