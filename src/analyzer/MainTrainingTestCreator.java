@@ -60,13 +60,17 @@ public class MainTrainingTestCreator {
 			}
 			Stream<String> lines = csv.lines();
 			Iterator<String> lineIterator = lines.iterator();
+			double trainingRecordNumber=1;
+			double testRecordNumber=1;
 			while (lineIterator.hasNext()) {
-				String string = (String) lineIterator.next();
+				String currentRecord = (String) lineIterator.next();
 				try {
-					if (Math.random()<=SPLIT_PERCENTAGE) {
-						fileTrainig.write(string+"\n");
+					if (Math.random()<=testRecordNumber/trainingRecordNumber*SPLIT_PERCENTAGE) {
+						fileTrainig.write(currentRecord+"\n");
+						trainingRecordNumber++;
 					}else {
-						fileTest.write(string+"\n");
+						fileTest.write(currentRecord+"\n");
+						testRecordNumber++;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
