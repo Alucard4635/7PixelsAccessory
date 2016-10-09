@@ -26,15 +26,20 @@ public class GoodsClassificator implements GoodTypeIdentificator {
 		
 		sumArray(sumDescriptionFeatures, sumTitleFeatures, titleFeatureWeight);
 		
+		int reconizedClass = evaluateFeatures(sumDescriptionFeatures);
+		return TypeOfGoods.values()[reconizedClass];
+	}
+
+	private int evaluateFeatures(float[] features) {
 		int indexOfMax = 0;
-		for (int i = 0; i < sumDescriptionFeatures.length; i++) {
-			float current = sumDescriptionFeatures[i];
-			float maxValue = sumDescriptionFeatures[indexOfMax];
+		for (int i = 0; i < features.length; i++) {
+			float current = features[i];
+			float maxValue = features[indexOfMax];
 			if (current>maxValue) {
 				indexOfMax=i;
 			}
 		}
-		return TypeOfGoods.values()[indexOfMax];
+		return indexOfMax;
 	}
 
 	public float[] sumFeatures(NodeWordOfGoods[] keywords) {
@@ -80,5 +85,10 @@ public class GoodsClassificator implements GoodTypeIdentificator {
 
 		}
 	}
+
+	public WordRanker getRanker() {
+		return ranker;
+	}
+
 
 }

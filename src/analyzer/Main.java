@@ -1,7 +1,9 @@
 package analyzer;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -10,6 +12,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import dataStructures.Good;
+import dataStructures.NodeWordOfGoods;
 import dataStructures.TypeOfGoods;
 import packageIO.GoodsParser;
 import preprocessing.GoodsProcesser;
@@ -18,15 +21,17 @@ import preprocessing.TitleRemover;
 
 
 public class Main {
-	private static final double PERCENTUALE_DI_ADDESTRAMENTO = 0.5;
+private static final int LEARNING_ITERATIONS = 1;
+	//	private static final double PERCENTUALE_DI_ADDESTRAMENTO = 0.5;
 	private static final String goodDeimiter = " ";
 
 	public static void main(String[] args) {
 		File[] files = new File[2];//accessories and product
+		String[] dialogs={"Select Trainings set csv file","Select Test set csv file"};
 		JFileChooser f = new JFileChooser();
 		f.setCurrentDirectory(new File(System.getProperty("user.dir")));
 		for (int i = 0; i < files.length; i++) {
-			JOptionPane.showMessageDialog(null, "Select csv file");
+			JOptionPane.showMessageDialog(null, dialogs[i]);
 			int retVal = f.showOpenDialog(null);
 			if (retVal != JFileChooser.APPROVE_OPTION ) {
 				System.exit(0);
@@ -39,55 +44,78 @@ public class Main {
 		preprocessers[0]=new SpaceReplacer();
 		preprocessers[1]=new TitleRemover();
 		
-		GoodsParser goods0 = null;
-		GoodsParser goods1 = null;
+		GoodsParser parserTraining = null;
+		GoodsParser parserTest = null;
 		try {
-			goods0 = new GoodsParser(files[0], ",");
-			goods1 = new GoodsParser(files[1], ",");
+			parserTraining = new GoodsParser(files[0], ",");
+			parserTest = new GoodsParser(files[1], ",");
 		} catch (FileNotFoundException e) {
 			System.out.println("File non trovato");
-			System.exit(0);
+			System.exit(-1);
 		}
-		Collection<Good> goods = null;
 		Collection<Good> learningSet = new LinkedList<Good>();
-
+		Collection<Good> testSet = null;
+		
 		try {
-			LinkedList<Good> class0 = goods0.readAndClose();
-			LinkedList<Good> class1 = goods1.readAndClose();
+			learningSet = parserTraining.readAndClose();
+			System.out.println("Training "+files[0].getName());
+			testSet = parserTest.readAndClose();
+			System.out.println("Test "+files[1].getName());
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		
+	
+		/*try {
+			LinkedList<Good> class0 = parserTest.readAndClose();
+			LinkedList<Good> class1 = parserTraining.readAndClose();
+			
 			int j = (int) (class0.size()*PERCENTUALE_DI_ADDESTRAMENTO);
-			for (int i = 0; i < j; i++) {
+			for (int i = 0; i <= j; i++) {
 				learningSet.add(class0.removeLast());
 				if (!class1.isEmpty()) {
 					learningSet.add(class1.removeLast());
 				}
 			}
-			goods = class1;
-			goods.addAll(class0);
+			testSet = class1;
+			testSet.addAll(class0);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(0);
-		}
-		GoodsClassificator goodsClassificator = new GoodsClassificator();
+		}*/
 		
+		GoodsClassificator goodsClassificator = new GoodsClassificator();
 		Good[] arrayGoodLearning=new Good[learningSet.size()];
 		learningSet.toArray(arrayGoodLearning);
 		preprocess(preprocessers, arrayGoodLearning);
 		
-		Good[] arrayGoodTest=new Good[goods.size()];
-		goods.toArray(arrayGoodTest);
+		Good[] arrayGoodTest=new Good[testSet.size()];
+		testSet.toArray(arrayGoodTest);
 		preprocess(preprocessers, arrayGoodTest);
+
 		
-//		int descEmpty = 0;
-//		for (int i = 0; i < arrayGoodLearning.length; i++) {
-//			if (arrayGoodLearning[i].getDescription().length()<1) {
-//				descEmpty++;
-//			}
-//		}
-//		System.out.println(descEmpty);
+		File misclassified=new File("Misclassified.txt");
+		BufferedWriter missWriter = null;
+		try {
+			missWriter = new BufferedWriter(new FileWriter(misclassified));
+			TypeOfGoods[] values = TypeOfGoods.values();
+			String featuresClasses = "[";
+			for (int i = 0; i < values.length; i++) {
+				featuresClasses+=values[i]+",";
+			}
+			featuresClasses=featuresClasses.substring(0, featuresClasses.length()-1)+"]";
+			missWriter.write(featuresClasses+"\n");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
 		double prodHit = 0;
 		double accHit = 0;
 		int accNum=0;
-		for (int addest = 0; addest < 1; addest++) {
+		
+		for (int addest = 0; addest < LEARNING_ITERATIONS; addest++) {
 			goodsClassificator.learnType(arrayGoodLearning, goodDeimiter, 1, 1, 1);
 		
 			double hit = 0;
@@ -103,11 +131,19 @@ public class Main {
 					if (correctType.equals(TypeOfGoods.PRODUCT)) {
 						prodHit++;
 					}
+				}else {
+					writeMiss(goodsClassificator, missWriter, current, reconizeType, correctType);
 				}
 				if (correctType.equals(TypeOfGoods.ACCESSORY)) {
 					accNum++;
 				}
 				
+			}
+			try {
+				missWriter.flush();
+				missWriter.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 			System.out.println("Global "+hit/arrayGoodTest.length);
 			System.out.println("Acc "+accHit/accNum);
@@ -116,6 +152,28 @@ public class Main {
 
 		}
 
+	}
+
+	private static void writeMiss(GoodsClassificator goodsClassificator, BufferedWriter missWriter, Good current,
+			TypeOfGoods reconizeType, TypeOfGoods correctType) {
+		WordRanker ranker = goodsClassificator.getRanker();
+		NodeWordOfGoods[] titleKeys = ranker.getAllKeywords(current.getTitle(), goodDeimiter);
+		NodeWordOfGoods[] descKeys = ranker.getAllKeywords(current.getDescription(), goodDeimiter);
+		try {
+			missWriter.write(current.toString()+"\n");
+			missWriter.write(reconizeType+" insteadOf "+correctType+"\n");
+			missWriter.write("Title Keywords: ");
+		for (int j = 0; j < titleKeys.length; j++) {
+			missWriter.write(titleKeys[j].toString());
+		}
+		missWriter.write("\nDescription Keywords: ");
+		for (int j = 0; j < descKeys.length; j++) {
+			missWriter.write(descKeys[j].toString());
+		}
+		missWriter.write("\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void preprocess(GoodsProcesser[] preprocessers, Good[] arrayGoodTest) {
