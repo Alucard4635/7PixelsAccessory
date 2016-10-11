@@ -7,14 +7,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-
-import packageIO.CSVHandler;
 
 public class MainTrainingTestCreator {
 	private static final double SPLIT_PERCENTAGE = 0.5;
@@ -35,7 +32,6 @@ public class MainTrainingTestCreator {
 				System.exit(-1);
 			}
 		}
-		Collection<String> goods =null;
 		BufferedReader csv = null;
 		BufferedWriter fileTrainig = null;
 		BufferedWriter fileTest = null;
