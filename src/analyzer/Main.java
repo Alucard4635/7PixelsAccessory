@@ -26,6 +26,7 @@ private static final int LEARNING_ITERATIONS = 1;
 	private static final String goodDeimiter = " ";
 
 	public static void main(String[] args) {
+		//selezione dei file di training e test
 		File[] files = new File[2];//accessories and product
 		String[] dialogs={"Select Trainings set csv file","Select Test set csv file"};
 		JFileChooser f = new JFileChooser();
@@ -40,19 +41,24 @@ private static final int LEARNING_ITERATIONS = 1;
 			}
 		}
 		
+		// creazione dei passsi di preprocessing
 		GoodsProcesser[] preprocessers=new GoodsProcesser[2];
 		preprocessers[0]=new SpaceReplacer();
 		preprocessers[1]=new TitleRemover();
 		
+		
+		// parsing dei file con ,
 		GoodsParser parserTraining = null;
 		GoodsParser parserTest = null;
 		try {
-			parserTraining = new GoodsParser(files[0], ",");
-			parserTest = new GoodsParser(files[1], ",");
+			parserTraining = new GoodsParser(files[0], ",");//files[0]=Training 
+			parserTest = new GoodsParser(files[1], ",");//files[1]=test
 		} catch (FileNotFoundException e) {
 			System.out.println("File non trovato");
 			System.exit(-1);
 		}
+		
+		// caricamento in memoria dei dati di learning e test
 		Collection<Good> learningSet = new LinkedList<Good>();
 		Collection<Good> testSet = null;
 		
@@ -95,9 +101,10 @@ private static final int LEARNING_ITERATIONS = 1;
 		testSet.toArray(arrayGoodTest);
 		preprocess(preprocessers, arrayGoodTest);
 
-		
+		//preparazione file missclassificati
 		File misclassified=new File("Misclassified.txt");
 		BufferedWriter missWriter = null;
+		// scrittura del significato delle features
 		try {
 			missWriter = new BufferedWriter(new FileWriter(misclassified));
 			TypeOfGoods[] values = TypeOfGoods.values();
@@ -113,7 +120,7 @@ private static final int LEARNING_ITERATIONS = 1;
 		
 		double prodHit = 0;
 		double accHit = 0;
-		int accNum=0;
+		double accNum=0;
 		
 		for (int addest = 0; addest < LEARNING_ITERATIONS; addest++) {
 			goodsClassificator.learnType(arrayGoodLearning, goodDeimiter, 1, 1, 1);

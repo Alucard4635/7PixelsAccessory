@@ -18,7 +18,7 @@ import socialNetwork.Graph;
  *Crea un grafo dove misura l'importanza delle parole, e della loro concatenazione
  */
 public class WordRanker{
-	private int wordCounter=0;
+	private int wordCounter=0;//usare la parola con massima occorenza!
 	private WordOfGoodsGraph graph=new WordOfGoodsGraph();
 	
 	public void learn(String text,String delimiter,float importanceMultiplier, float boundWeight, float[] deltaFeatures){
