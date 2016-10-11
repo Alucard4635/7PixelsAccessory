@@ -74,25 +74,8 @@ private static final int LEARNING_ITERATIONS = 1;
 		}
 		
 	
-		/*try {
-			LinkedList<Good> class0 = parserTest.readAndClose();
-			LinkedList<Good> class1 = parserTraining.readAndClose();
-			
-			int j = (int) (class0.size()*PERCENTUALE_DI_ADDESTRAMENTO);
-			for (int i = 0; i <= j; i++) {
-				learningSet.add(class0.removeLast());
-				if (!class1.isEmpty()) {
-					learningSet.add(class1.removeLast());
-				}
-			}
-			testSet = class1;
-			testSet.addAll(class0);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}*/
-		
 		GoodsClassificator goodsClassificator = new GoodsClassificator();
+				
 		Good[] arrayGoodLearning=new Good[learningSet.size()];
 		learningSet.toArray(arrayGoodLearning);
 		preprocess(preprocessers, arrayGoodLearning);
@@ -102,6 +85,7 @@ private static final int LEARNING_ITERATIONS = 1;
 		preprocess(preprocessers, arrayGoodTest);
 
 		//preparazione file missclassificati
+		// inizializzazione del file relativo ai record missclassificati
 		File misclassified=new File("Misclassified.txt");
 		BufferedWriter missWriter = null;
 		// scrittura del significato delle features

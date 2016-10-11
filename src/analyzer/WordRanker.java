@@ -38,7 +38,7 @@ public class WordRanker{
 				if (createdNode instanceof NodeWordOfGoods) {
 					NodeWordOfGoods createdNodeWord=(NodeWordOfGoods) createdNode;
 					if (!isNew) {
-						float increase = 1/importanceMultiplier;
+						float increase = 1;
 						createdNodeWord.increaseOccurence(increase);
 						wordCounter+=increase;
 					}
