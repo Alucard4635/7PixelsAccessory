@@ -10,33 +10,41 @@ import dataStructures.TypeOfGoods;
  */
 public class GoodsClassificator implements GoodTypeIdentificator {
 	private WordRanker ranker=new WordRanker();
-	private float titleFeatureWeight=0.5f;
+	private float titleFeatureWeight=1f;
 
 	@Override
 	public TypeOfGoods reconizeType(Good good, String deimiter) {
 		
 		NodeWordOfGoods[] titleKeywords = ranker.getAllKeywords(good.getTitle(), deimiter);
 		NodeWordOfGoods[] descriptionKeywords = ranker.getAllKeywords(good.getDescription(), deimiter);
-		
 		float[] sumTitleFeatures = sumFeatures(titleKeywords);
 		float[] sumDescriptionFeatures = sumFeatures(descriptionKeywords);
-		if (sumDescriptionFeatures==null) {
-			sumDescriptionFeatures = sumTitleFeatures;
+		float[] result = sumTitleFeatures;
+		if (sumDescriptionFeatures!=null) {
+			result=sumArray(sumDescriptionFeatures, sumTitleFeatures, titleFeatureWeight);
 		}
 		
-		sumArray(sumDescriptionFeatures, sumTitleFeatures, titleFeatureWeight);
 		
-		int reconizedClass = evaluateFeatures(sumDescriptionFeatures);
+		
+		int reconizedClass = evaluateFeatures(result);
 		return TypeOfGoods.values()[reconizedClass];
 	}
 
 	private int evaluateFeatures(float[] features) {
+		int indexOfMax = maxValue(features);
+
+		return indexOfMax;
+	}
+
+	public int maxValue(float[] features) {
 		int indexOfMax = 0;
+		float current;
+		float maxValue = 0;
 		for (int i = 0; i < features.length; i++) {
-			float current = features[i];
-			float maxValue = features[indexOfMax];
-			if (current>maxValue) {
+			current = features[i];
+			if (current>=maxValue) {
 				indexOfMax=i;
+				maxValue = features[indexOfMax];
 			}
 		}
 		return indexOfMax;
@@ -58,18 +66,20 @@ public class GoodsClassificator implements GoodTypeIdentificator {
 			if (totalFeatures==null) {
 				totalFeatures=new float[features.length];
 			}
-			sumArray( totalFeatures, features, ranker.rankWord(current));
+			totalFeatures = sumArray( totalFeatures, features, ranker.rankWord(current));
 		}
 		return totalFeatures;
 	}
 
-	public void sumArray(float[] totalFeatures,  float[] features,double feratureWeight) {
+	public float[] sumArray(float[] totalFeatures,  float[] features,double feratureWeight) {
+		float[] result=totalFeatures.clone();
 		if (totalFeatures.length!=features.length) {
 			throw new IllegalArgumentException("Different arrays size");
 		}
-		for (int j = 0; j < totalFeatures.length; j++) {
-			totalFeatures[j]+=features[j]*feratureWeight;
+		for (int j = 0; j < result.length; j++) {
+			result[j]+=features[j]*feratureWeight;
 		}
+		return result;
 	}
 	
 	public void learnType(Good[] goods, String wordDelimiter, float titleIM, float descriptionIM, float boundWeight ){

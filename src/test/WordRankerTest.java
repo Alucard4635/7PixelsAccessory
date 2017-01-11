@@ -16,7 +16,7 @@ public class WordRankerTest {
 	@Test
 	public void productTest() {
 		Good g=new Good("webster",
-				"1 2 2 3 4 3 4 3 4 5 4 7",
+				"1 2 2 3 4 3 4 3 4 5 4 7 9",
 				"5 5 5 6 6 6 6 5 6 6 7 7 7 7 77 7 7 7 7 7 7 7 77 7 7 7 7 7 7 7 7 7 7 7 77"
 				,13.93f);
 		

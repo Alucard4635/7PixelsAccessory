@@ -20,11 +20,13 @@ import socialNetwork.Graph;
 public class WordRanker{
 	private int wordCounter=0;//usare la parola con massima occorenza!
 	private WordOfGoodsGraph graph=new WordOfGoodsGraph();
+	private double maxCount=1;
 	
 	public void learn(String text,String delimiter,float importanceMultiplier, float boundWeight, float[] deltaFeatures){
 		// prendo le parole e ne assimila la possibile tokenizzazione
 		StringTokenizer tok= new StringTokenizer(text,delimiter);
 		AbstractNode oldNode = null;
+		double occurence;
 		while (tok.hasMoreTokens()) {
 			boolean isNew=false;
 			String nextToken = tok.nextToken();
@@ -38,9 +40,12 @@ public class WordRanker{
 				if (createdNode instanceof NodeWordOfGoods) {
 					NodeWordOfGoods createdNodeWord=(NodeWordOfGoods) createdNode;
 					if (!isNew) {
-						float increase = 1;
-						createdNodeWord.increaseOccurence(increase);
-						wordCounter+=increase;
+						createdNodeWord.increaseOccurence(1);
+						wordCounter+=(float) 1;
+						occurence = createdNodeWord.getOccurence();
+						if (occurence>maxCount) {
+							maxCount=occurence;
+						}
 					}
 
 					if (oldNode!=null) {
@@ -71,6 +76,9 @@ public class WordRanker{
 		// per la valutazione delle parole di locazioni si verificherà a monte
 		ArrayList<NodeWordOfGoods> list=new ArrayList<NodeWordOfGoods>();
 		NodeWordOfGoods old = null;
+		int index = 0;
+		boolean addedWord=false;
+		NodeWordOfGoods multiWord=null;
 		while (tok.hasMoreTokens()) {
 			String nextToken = tok.nextToken();
 			if (!nextToken.equals("")) {
@@ -79,21 +87,27 @@ public class WordRanker{
 				if (node instanceof NodeWordOfGoods) {
 					NodeWordOfGoods word = (NodeWordOfGoods) node;
 					double rank = rankWord(word);
-					/*if (old!=null) {
+					/*if (old!=null) {//FIXME!!!!
 						double bound = word.getBound(old);
-						//TODO se è alto si costuisce una nuova parola
-					}*/
-					int index = 0;
-					
-					
-					if (!list.contains(word)) {
-						for (NodeWordOfGoods nodeWord : list) {//order by decreasing order
-							if (rank<=rankWord(nodeWord)) {
-								break;
+						addedWord = bound/word.getTotalBound()>0.90;
+						if (addedWord) {
+							if (multiWord==null) {
+								multiWord=old;
 							}
-							index++;
+							if (list.remove(multiWord)) {
+								System.out.println("removed "+multiWord.getId() );
+							}
+							multiWord = new NodeWordOfGoods(multiWord.getId()+" "+word.getId(), word.getFeatures().clone());
+							System.out.println("add "+multiWord.getId() );
+
+							multiWord.setOccurence(word.getOccurence());
 						}
-						list.add(index,word);
+					}*/
+					if (addedWord&&multiWord!=null) {
+						index = insertWordDecreasingOrder(list, multiWord, rank);
+						addedWord=false;
+					}else {
+						index = insertWordDecreasingOrder(list, word, rank);
 					}
 					old=word;
 				}
@@ -102,15 +116,29 @@ public class WordRanker{
 		Collections.reverse(list);
 		return list;
 	}
+
+	public int insertWordDecreasingOrder(ArrayList<NodeWordOfGoods> list, NodeWordOfGoods word, double rank) {
+		int index = 0;
+		if (!list.contains(word)) {
+			for (NodeWordOfGoods nodeWord : list) {//order by decreasing order
+				if (rank<=rankWord(nodeWord)) {
+					break;
+				}
+				index++;
+			}
+			list.add(index,word);
+		}
+		return index;
+	}
 	
 
 	public double rankWord(NodeWordOfGoods word) {
 		if (wordCounter==0) {
 			return 1;
 		}
-		double probability = (double)word.getOccurence()/wordCounter;
+		double probability = (double)word.getOccurence()/maxCount;
 		double other=1-probability;
-		return probability*(-Math.log10(probability))+other*(-Math.log10(other));// migliorato con Math.sqrt(probability)
+		return probability*(-Math.log10(probability));//+other*(-Math.log10(other));
 	}
 
 	public WordOfGoodsGraph getGraph() {

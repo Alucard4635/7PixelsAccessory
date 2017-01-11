@@ -19,13 +19,25 @@ public class NodeWordOfGoods extends HashNode {
 		return occurence+=increase;
 	}
 	
-	public void setOccurence(int occurence) {
+	public void setOccurence(double occurence) {
 		this.occurence = occurence;
 	}
 	
 	//PS: you can modify array's content!
 	public float[] getFeatures() {
-		return features;
+		double squareSum = 0;
+		float[] normalizatedFeatures = features.clone();
+		for (int i = 0; i < normalizatedFeatures.length; i++) {
+			squareSum+=normalizatedFeatures[i]*normalizatedFeatures[i];
+		}
+		squareSum=Math.sqrt(squareSum);
+		if (squareSum<=0) {
+			return normalizatedFeatures;
+		}
+		for (int i = 0; i < normalizatedFeatures.length; i++) {
+			normalizatedFeatures[i]/=squareSum;
+		}
+		return normalizatedFeatures;
 	}
 
 	private float[] features;
@@ -42,7 +54,7 @@ public class NodeWordOfGoods extends HashNode {
 		}else {
 			directionalLink(friend, deltaBound);
 		}
-		setTotalBound(getTotalBound() + deltaBound);
+		totalBound+=deltaBound;
 	}
 
 	public double getTotalBound() {
@@ -54,19 +66,23 @@ public class NodeWordOfGoods extends HashNode {
 	}
 
 	public double getBound(NodeWordOfGoods old) {
-		return getDirectionalLinkTo(old).getWeight();
+		DirectionalLink directionalLinkTo = getDirectionalLinkTo(old);
+		if (directionalLinkTo==null) {
+			return 0;
+		}
+		return directionalLinkTo.getWeight();
 	}
 
 	public void addFeatures(float[] deltaFeatures) {
-		double squareSum = 0;
+		//double squareSum = 0;
 		for (int i = 0; i < deltaFeatures.length; i++) {
 			features[i]+=deltaFeatures[i];
-			squareSum+=features[i]*features[i];
+			//squareSum+=features[i]*features[i];
 		}
-		squareSum=Math.sqrt(squareSum);
+		/*squareSum=Math.sqrt(squareSum);
 		for (int i = 0; i < deltaFeatures.length; i++) {
 			features[i]/=squareSum;
-		}
+		}*/
 		
 		
 	}

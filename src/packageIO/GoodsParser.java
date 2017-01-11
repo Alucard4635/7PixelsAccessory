@@ -1,7 +1,6 @@
 package packageIO;
 
 import java.io.*;
-import java.util.Collection;
 import java.util.LinkedList;
 import dataStructures.Good;
 import dataStructures.TypeOfGoods;
@@ -33,9 +32,9 @@ public class GoodsParser {
 
 	public Good parseGood(String[] line) throws IOException {
 		String price = line[3];
-		Good good = new Good(line[0], line[1], line[2], Float.parseFloat(price));
+		Good good = new Good(line[0].toLowerCase(), line[1].toLowerCase(), line[2].toLowerCase(), Float.parseFloat(price));
 		if (line.length>4) {
-			if (line[4].contains("accessories")) {
+			if (line[4].contains("a")) {
 				good.setType(TypeOfGoods.ACCESSORY);
 			}else {
 				good.setType(TypeOfGoods.PRODUCT);
